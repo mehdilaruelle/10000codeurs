@@ -1,13 +1,20 @@
-# Monter l'infra de recette sur AWS avec Terraform
+# Terraform projet
 
-Terraform permet de créer de manière programmable une infrastructure dans le Cloud pour notre application.
+[Terraform](https://www.terraform.io/) permet de créer de manière programmable une infrastructure dans le Cloud pour notre application.
 Utiliser la version 0.14 de Terraform au minimum.
+
+Pour en apprendre plus: [HashiCorp Terraform Learn](https://learn.hashicorp.com/terraform)
+
+## Remerciement
+
+A [10.000 codeurs](https://10000codeurs.com/) pour leur invitation.
 
 # Terraform - Infra as code
 
 ## Terraform backend
 
-Ce projet utilise [Terraform S3 backend](https://www.terraform.io/docs/language/settings/backends/s3.html). Si vous souhaitez utiliser ce projet avec le backend S3 (ou non), modifier la [configuration Terraform](./terraform.tf).
+Ce projet utilise [Terraform S3 backend](https://www.terraform.io/docs/language/settings/backends/s3.html).
+Si vous souhaitez utiliser ce projet avec le backend S3 (ou non), modifier la [configuration Terraform](./terraform.tf).
 
 ## Commandes Terraform
 
@@ -29,6 +36,14 @@ Et pour détruire une stack Terraform
 ```bash
 terraform destroy
 ```
+
+## CI automation
+
+Avec [Gitlab CI](https://docs.gitlab.com/ce/ci/), il est possible d'automatiser
+l'ensemble du déploiement.
+Celui-ci se fait via le fichier [gitlab-ci.yml](./.gitlab-ci.yml).
+
+Plus d'information sur [le site official de Gitlab](https://docs.gitlab.com/ce/ci/yaml/).
 
 # Terraform project
 
