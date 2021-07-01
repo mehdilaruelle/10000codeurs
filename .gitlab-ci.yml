@@ -1,0 +1,80 @@
+image: bash
+
+stages:
+  - prepare
+  - build
+  - deploy
+  - test
+
+variables:
+  TERRAFORM_VERSION: 1.0.1
+
+before_script:
+  - apk --update add curl unzip bash
+  - cd /usr/local/bin/
+  - curl https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_386.zip --output terraform.zip
+  - unzip terraform.zip
+  - cd -
+  - terraform version
+
+init:
+  stage: prepare
+  script:
+    - terraform init
+    - terraform validate
+
+plan:
+  stage: build
+  script:
+    - terraform init
+    - terraform plan -out=plan.cache
+  artifacts:
+    name: plan
+    paths:
+      - plan.cache
+
+apply:
+  stage: deploy
+  script:
+    - terraform init
+    - terraform apply -input=false plan.cache
+  dependencies:
+    - plan
+  when: manual
+  only:
+    - master
+  allow_failure: false
+
+destroy:
+  stage: deploy
+  script:
+    - terraform init
+    - terraform destroy -input=false -auto-approve
+  dependencies:
+    - plan
+  when: manual
+  only:
+    - master
+
+test:
+  stage: test
+  script:
+    - apk --update add coreutils
+    - terraform init
+    - export WEBSITE_URL=$(terraform output -raw elb_endpoint)
+    - export runtime="10 minute"
+    - export endtime=$(date -ud "$runtime" +%s)
+    - >
+        while [[ $(date -u +%s) -le $endtime ]]; do
+          response=$(curl --write-out '%{http_code}' --silent --output /dev/null $WEBSITE_URL)
+          if [ $response -eq 200 ]; then
+            echo "Website is up."
+            break
+          else
+            echo "$WEBSITE_URL is not yet up."
+          fi
+          sleep 10
+        done
+  only:
+    - master
+  when: on_success
